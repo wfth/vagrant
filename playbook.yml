@@ -1,0 +1,51 @@
+- hosts: all
+
+  tasks:
+    - name: install python-apt for package management
+      easy_install:
+        name: python-apt
+
+    - name: install hashlib for checksums
+      easy_install:
+        name: hashlib
+
+    - name: install nginx apt repository
+      apt_repository:
+        repo: "{{ item }}"
+      with_items:
+        - "deb http://nginx.org/packages/ubuntu/ trusty nginx"
+        - "deb-src http://nginx.org/packages/ubuntu/ trusty nginx"
+      become: true
+
+    - name: install nginx apt repository key
+      apt_key:
+        keyserver: keyserver.ubuntu.com
+        id: ABF5BD827BD9BF62
+        state: present
+      become: true
+
+    - apt:
+        update_cache: yes
+        cache_valid_time: 1800
+      become: true
+
+    - name: install nginx
+      apt:
+        name: nginx
+      become: true
+
+    - name: download php
+      get_url:
+        url: http://us1.php.net/distributions/php-7.1.1.tar.bz2
+        dest: /var/tmp/php.tar.bz2
+#        checksum: "sha256:d791d39d7b54ec42441a05a5f06d68a495647d843210e3ae4f2c6adb99c675bc"
+
+    - name: extract php
+      unarchive:
+        copy: no
+        src: /var/tmp/php.tar.bz2
+        dest: /tmp
+
+# TODO install php in ningx: http://php.net/manual/en/install.unix.nginx.php
+# TODO decide whether to use mysql or postgresql
+
